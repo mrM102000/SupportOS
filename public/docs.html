@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SupportOS — API & Integration Docs</title>
+<style>
+  :root{--bg:#07090f;--surface:#0e1120;--card:#141828;--border:#1e2540;--accent:#00d4aa;--accent2:#5b8aff;--accent3:#ff6b6b;--text:#e8eaf6;--muted:#7b82a0;--white:#fff}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+
+  /* SIDEBAR */
+  aside{width:260px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;padding:0 0 32px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+  .sidebar-logo{padding:22px 22px 18px;font-size:17px;font-weight:800;color:var(--accent);border-bottom:1px solid var(--border);display:block;text-decoration:none}
+  .sidebar-logo span{color:var(--muted);font-weight:400}
+  .sidebar-logo small{display:block;font-size:.72rem;color:var(--muted);font-weight:400;margin-top:2px}
+  .nav-group{padding:18px 14px 6px}
+  .nav-group-label{font-size:.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:0 8px;margin-bottom:6px}
+  .nav-link{display:block;padding:8px 12px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:.87rem;transition:all .2s;margin-bottom:2px}
+  .nav-link:hover{background:var(--card);color:var(--text)}
+  .nav-link.active{background:rgba(0,212,170,.1);color:var(--accent)}
+  .nav-divider{height:1px;background:var(--border);margin:12px 14px}
+  .nav-back{display:block;padding:10px 22px;font-size:.82rem;color:var(--muted);text-decoration:none;border-top:1px solid var(--border);margin-top:12px;transition:color .2s}
+  .nav-back:hover{color:var(--white)}
+
+  /* MAIN */
+  main{margin-left:260px;flex:1;max-width:860px;padding:48px 52px 80px}
+  h1{font-size:2.4rem;font-weight:900;line-height:1.1;margin-bottom:10px}
+  h2{font-size:1.6rem;font-weight:800;margin:56px 0 16px;color:var(--white);scroll-margin-top:32px}
+  h3{font-size:1.1rem;font-weight:700;color:var(--white);margin:28px 0 10px;scroll-margin-top:32px}
+  p{font-size:.97rem;color:var(--muted);line-height:1.7;margin-bottom:14px}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* HERO */
+  .doc-hero{margin-bottom:48px;padding-bottom:40px;border-bottom:1px solid var(--border)}
+  .doc-hero h1 span{color:var(--accent)}
+  .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .badge{display:inline-block;padding:4px 12px;border-radius:50px;font-size:.75rem;font-weight:600;border:1px solid}
+  .badge-green{background:rgba(0,212,170,.1);color:var(--accent);border-color:rgba(0,212,170,.25)}
+  .badge-blue{background:rgba(91,138,255,.1);color:var(--accent2);border-color:rgba(91,138,255,.25)}
+  .badge-gray{background:rgba(123,130,160,.08);color:var(--muted);border-color:var(--border)}
+
+  /* CODE */
+  pre{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:14px 0;font-size:.85rem;line-height:1.7;position:relative}
+  code{font-family:'Cascadia Code','Fira Code',monospace;font-size:.84rem}
+  pre code{color:#e8eaf6}
+  .kw{color:#5b8aff}.str{color:#00d4aa}.cmt{color:#7b82a0;font-style:italic}.num{color:#ffb400}.prop{color:#a78bfa}.fn{color:#ff6b6b}
+  .copy-btn{position:absolute;top:10px;right:12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:.72rem;padding:4px 10px;cursor:pointer;transition:all .2s}
+  .copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* TABS */
+  .tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:0}
+  .tab{padding:9px 18px;font-size:.84rem;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;margin-bottom:-1px}
+  .tab:hover{color:var(--text)}
+  .tab.active{color:var(--accent);border-color:var(--accent)}
+  .tab-content{display:none}
+  .tab-content.active{display:block}
+
+  /* ENDPOINT CARD */
+  .endpoint{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin:18px 0}
+  .endpoint-head{padding:16px 20px;display:flex;align-items:center;gap:12px}
+  .method{font-size:.78rem;font-weight:800;letter-spacing:.5px;padding:4px 10px;border-radius:6px;font-family:monospace}
+  .method.post{background:rgba(0,212,170,.12);color:var(--accent);border:1px solid rgba(0,212,170,.25)}
+  .method.get{background:rgba(91,138,255,.12);color:var(--accent2);border:1px solid rgba(91,138,255,.25)}
+  .method.delete{background:rgba(255,107,107,.1);color:var(--accent3);border:1px solid rgba(255,107,107,.2)}
+  .method.patch{background:rgba(255,180,0,.1);color:#ffb400;border:1px solid rgba(255,180,0,.2)}
+  .endpoint-path{font-family:monospace;font-size:.92rem;color:var(--white)}
+  .endpoint-desc{font-size:.82rem;color:var(--muted);margin-left:auto}
+  .endpoint-body{padding:0 20px 18px;border-top:1px solid var(--border)}
+  .param-table{width:100%;border-collapse:collapse;margin-top:12px;font-size:.84rem}
+  .param-table th{text-align:left;padding:8px 12px;color:var(--muted);font-size:.72rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+  .param-table td{padding:9px 12px;border-bottom:1px solid rgba(30,37,64,.5);vertical-align:top}
+  .param-table tr:last-child td{border-bottom:none}
+  .param-name{font-family:monospace;color:var(--accent);font-size:.85rem}
+  .param-type{font-family:monospace;font-size:.78rem;color:var(--accent2)}
+  .required{font-size:.68rem;background:rgba(255,107,107,.1);color:var(--accent3);padding:2px 6px;border-radius:4px;margin-left:6px}
+
+  /* AUTH BOX */
+  .auth-box{background:rgba(0,212,170,.05);border:1px solid rgba(0,212,170,.2);border-radius:12px;padding:18px 22px;margin:18px 0}
+  .auth-box h4{color:var(--accent);font-size:.9rem;margin-bottom:6px}
+  .auth-box p{font-size:.88rem;margin:0}
+
+  /* WIDGET PREVIEW */
+  .widget-preview{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;margin:18px 0}
+  .widget-preview h4{color:var(--white);margin-bottom:14px;font-size:1rem}
+  .attr-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px;font-size:.85rem}
+  .attr-name{font-family:monospace;color:var(--accent2);min-width:140px}
+  .attr-type{font-family:monospace;font-size:.78rem;color:var(--muted)}
+  .attr-default{font-family:monospace;font-size:.78rem;color:var(--accent);background:rgba(0,212,170,.08);padding:1px 7px;border-radius:4px}
+  .attr-desc{color:var(--muted);font-size:.83rem}
+
+  /* RESPONSE EXAMPLE */
+  .response-label{font-size:.7rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+
+  /* WEBHOOK */
+  .webhook-events{display:flex;flex-direction:column;gap:10px;margin:14px 0}
+  .webhook-event{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;display:flex;gap:14px;align-items:flex-start}
+  .event-name{font-family:monospace;font-size:.88rem;color:var(--accent);min-width:140px;flex-shrink:0}
+  .event-desc{font-size:.85rem;color:var(--muted)}
+
+  /* INLINE CODE */
+  :not(pre) > code{background:rgba(91,138,255,.1);color:var(--accent2);padding:1px 6px;border-radius:4px;font-size:.85em}
+
+  /* CALLOUT */
+  .callout{border-left:3px solid var(--accent);background:rgba(0,212,170,.05);border-radius:0 10px 10px 0;padding:14px 18px;margin:14px 0}
+  .callout.warn{border-color:var(--accent3);background:rgba(255,107,107,.05)}
+  .callout p{margin:0;font-size:.88rem}
+
+  @media(max-width:900px){
+    aside{display:none}
+    main{margin-left:0;padding:28px 22px}
+  }
+</style>
+</head>
+<body>
+
+<aside>
+  <a href="/" class="sidebar-logo">Support<span>OS</span><small>Integration Docs</small></a>
+  <div class="nav-group">
+    <div class="nav-group-label">Getting Started</div>
+    <a href="#overview"    class="nav-link active">Overview</a>
+    <a href="#quickstart"  class="nav-link">Quick Start</a>
+    <a href="#auth"        class="nav-link">Authentication</a>
+  </div>
+  <div class="nav-divider"></div>
+  <div class="nav-group">
+    <div class="nav-group-label">API Reference</div>
+    <a href="#triage"   class="nav-link">POST /api/triage</a>
+    <a href="#audit"    class="nav-link">POST /api/audit</a>
+    <a href="#contact"  class="nav-link">POST /api/contact</a>
+  </div>
+  <div class="nav-divider"></div>
+  <div class="nav-group">
+    <div class="nav-group-label">Integrations</div>
+    <a href="#widget"   class="nav-link">Embeddable Widget</a>
+    <a href="#webhooks" class="nav-link">Webhooks</a>
+    <a href="#examples" class="nav-link">Code Examples</a>
+  </div>
+  <div class="nav-divider"></div>
+  <div class="nav-group">
+    <div class="nav-group-label">Platform</div>
+    <a href="#zendesk"   class="nav-link">Zendesk</a>
+    <a href="#intercom"  class="nav-link">Intercom</a>
+    <a href="#zapier"    class="nav-link">Zapier / Make</a>
+  </div>
+  <a href="/admin" class="nav-back">← Back to Admin</a>
+</aside>
+
+<main>
+
+  <!-- OVERVIEW -->
+  <div class="doc-hero" id="overview">
+    <h1>SupportOS <span>Integration Docs</span></h1>
+    <p>Everything you need to embed SupportOS into your product, website, or helpdesk — from a single script tag to a full REST API integration.</p>
+    <div class="badges">
+      <span class="badge badge-green">REST API</span>
+      <span class="badge badge-blue">Embeddable Widget</span>
+      <span class="badge badge-green">Webhooks</span>
+      <span class="badge badge-blue">Zapier / Make</span>
+      <span class="badge badge-gray">JSON responses</span>
+    </div>
+  </div>
+
+  <!-- QUICK START -->
+  <h2 id="quickstart">Quick Start</h2>
+  <p>The fastest way to add AI support triage to any website — one script tag, no backend needed.</p>
+
+  <h3>1. Generate an API key</h3>
+  <p>Go to <a href="/admin">Admin → API Keys</a> and create a new key. Copy the full key — it is only shown once.</p>
+
+  <h3>2. Embed the widget</h3>
+  <p>Add this tag to your site's <code>&lt;body&gt;</code> — the chat bubble appears instantly.</p>
+  <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code><span class="cmt">&lt;!-- SupportOS Widget --&gt;</span>
+<span class="kw">&lt;script</span>
+  <span class="prop">src</span>=<span class="str">"http://localhost:3000/widget.js"</span>
+  <span class="prop">data-key</span>=<span class="str">"sos_YOUR_API_KEY"</span>
+  <span class="prop">data-title</span>=<span class="str">"How can we help?"</span>
+  <span class="prop">data-color</span>=<span class="str">"#00d4aa"</span>
+<span class="kw">&gt;&lt;/script&gt;</span></code></pre>
+
+  <h3>3. Or call the API directly</h3>
+  <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code><span class="kw">fetch</span>(<span class="str">'http://localhost:3000/api/triage'</span>, {
+  method: <span class="str">'POST'</span>,
+  headers: {
+    <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span>,
+    <span class="str">'X-Api-Key'</span>: <span class="str">'sos_YOUR_API_KEY'</span>
+  },
+  body: <span class="fn">JSON.stringify</span>({ message: <span class="str">'I was charged twice'</span> })
+})
+.<span class="fn">then</span>(r <span class="kw">=></span> r.<span class="fn">json</span>())
+.<span class="fn">then</span>(data <span class="kw">=></span> console.<span class="fn">log</span>(data));</code></pre>
+
+  <!-- AUTH -->
+  <h2 id="auth">Authentication</h2>
+  <p>All integration endpoints require an API key. Admin endpoints require a JWT token from <code>POST /api/admin/login</code>.</p>
+
+  <div class="auth-box">
+    <h4>API Key — for widget and triage integrations</h4>
+    <p>Pass your key in the <code>X-Api-Key</code> request header, or as <code>?api_key=sos_...</code> in the query string. Keys start with <code>sos_</code>.</p>
+  </div>
+  <div class="auth-box">
+    <h4>JWT Token — for admin API endpoints</h4>
+    <p>Post to <code>/api/admin/login</code> with username/password. Use the returned <code>token</code> as <code>Authorization: Bearer &lt;token&gt;</code>. Expires in 24 hours.</p>
+  </div>
+
+  <!-- TRIAGE -->
+  <h2 id="triage">POST /api/triage</h2>
+  <p>The core endpoint. Submit a customer message and receive AI-powered triage: category, priority, sentiment, routing decision, suggested reply, and CRM note.</p>
+
+  <div class="endpoint">
+    <div class="endpoint-head">
+      <span class="method post">POST</span>
+      <span class="endpoint-path">/api/triage</span>
+      <span class="endpoint-desc">Requires API Key</span>
+    </div>
+    <div class="endpoint-body">
+      <table class="param-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><span class="param-name">message</span><span class="required">required</span></td><td><span class="param-type">string</span></td><td>The customer's support message</td></tr>
+          <tr><td><span class="param-name">session_id</span></td><td><span class="param-type">string</span></td><td>Optional. Pass to maintain conversation context across calls</td></tr>
+          <tr><td><span class="param-name">metadata</span></td><td><span class="param-type">object</span></td><td>Optional. Any extra data to pass through (customer ID, order ID, etc.)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="response-label">Response</div>
+  <pre><code>{
+  <span class="prop">"success"</span>: <span class="kw">true</span>,
+  <span class="prop">"session_id"</span>: <span class="str">"uuid"</span>,
+  <span class="prop">"mock"</span>: <span class="kw">false</span>,
+  <span class="prop">"data"</span>: {
+    <span class="prop">"triage"</span>: {
+      <span class="prop">"category"</span>: <span class="str">"billing"</span>,       <span class="cmt">// billing | technical | shipping | returns | account | general</span>
+      <span class="prop">"priority"</span>: <span class="str">"urgent"</span>,        <span class="cmt">// urgent | high | normal | low</span>
+      <span class="prop">"sentiment"</span>: <span class="str">"frustrated"</span>,    <span class="cmt">// frustrated | angry | neutral | positive</span>
+      <span class="prop">"confidence"</span>: <span class="str">"94%"</span>
+    },
+    <span class="prop">"routing"</span>: {
+      <span class="prop">"team"</span>: <span class="str">"Billing &amp; Accounts Team"</span>,
+      <span class="prop">"sla"</span>: <span class="str">"2 hours"</span>,
+      <span class="prop">"reason"</span>: <span class="str">"Message contains billing-related keywords."</span>
+    },
+    <span class="prop">"suggested_reply"</span>: <span class="str">"Thank you for reaching out..."</span>,
+    <span class="prop">"crm_note"</span>: <span class="str">"Customer contacted re: billing issue."</span>,
+    <span class="prop">"auto_close"</span>: <span class="kw">false</span>,
+    <span class="prop">"auto_close_reason"</span>: <span class="str">""</span>
+  },
+  <span class="prop">"metadata"</span>: <span class="kw">null</span>
+}</code></pre>
+
+  <!-- AUDIT -->
+  <h2 id="audit">POST /api/audit</h2>
+  <p>Submit an audit request. Saved to the admin dashboard and fires a webhook if configured.</p>
+
+  <div class="endpoint">
+    <div class="endpoint-head">
+      <span class="method post">POST</span>
+      <span class="endpoint-path">/api/audit</span>
+      <span class="endpoint-desc">Public — no auth required</span>
+    </div>
+    <div class="endpoint-body">
+      <table class="param-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><span class="param-name">name</span><span class="required">required</span></td><td><span class="param-type">string</span></td><td>Contact name</td></tr>
+          <tr><td><span class="param-name">email</span><span class="required">required</span></td><td><span class="param-type">string</span></td><td>Contact email</td></tr>
+          <tr><td><span class="param-name">company</span></td><td><span class="param-type">string</span></td><td>Company name</td></tr>
+          <tr><td><span class="param-name">helpdesk</span></td><td><span class="param-type">string</span></td><td>Current helpdesk platform</td></tr>
+          <tr><td><span class="param-name">weekly_tickets</span></td><td><span class="param-type">string</span></td><td>Weekly ticket volume range</td></tr>
+          <tr><td><span class="param-name">main_pain</span></td><td><span class="param-type">string</span></td><td>Main support challenge</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CONTACT -->
+  <h2 id="contact">POST /api/contact</h2>
+  <p>Submit a general contact/lead. Saved to the admin dashboard and fires a <code>lead.created</code> webhook.</p>
+
+  <div class="endpoint">
+    <div class="endpoint-head">
+      <span class="method post">POST</span>
+      <span class="endpoint-path">/api/contact</span>
+      <span class="endpoint-desc">Public — no auth required</span>
+    </div>
+    <div class="endpoint-body">
+      <table class="param-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><span class="param-name">email</span><span class="required">required</span></td><td><span class="param-type">string</span></td><td>Contact email</td></tr>
+          <tr><td><span class="param-name">name</span></td><td><span class="param-type">string</span></td><td>Contact name</td></tr>
+          <tr><td><span class="param-name">company</span></td><td><span class="param-type">string</span></td><td>Company name</td></tr>
+          <tr><td><span class="param-name">message</span></td><td><span class="param-type">string</span></td><td>Message content</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- WIDGET -->
+  <h2 id="widget">Embeddable Widget</h2>
+  <p>Drop one script tag on any page to add a fully-functional AI support chat widget. No React, no build step, no dependencies.</p>
+
+  <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code><span class="kw">&lt;script</span>
+  <span class="prop">src</span>=<span class="str">"http://localhost:3000/widget.js"</span>
+  <span class="prop">data-key</span>=<span class="str">"sos_YOUR_API_KEY"</span>
+  <span class="prop">data-title</span>=<span class="str">"How can we help?"</span>
+  <span class="prop">data-subtitle</span>=<span class="str">"AI-powered support — reply in seconds"</span>
+  <span class="prop">data-color</span>=<span class="str">"#00d4aa"</span>
+  <span class="prop">data-agent</span>=<span class="str">"SupportOS AI"</span>
+  <span class="prop">data-position</span>=<span class="str">"right"</span>
+<span class="kw">&gt;&lt;/script&gt;</span></code></pre>
+
+  <div class="widget-preview">
+    <h4>Configuration Attributes</h4>
+    <div class="attr-row"><span class="attr-name">data-key</span><span class="attr-type">string</span><span class="required" style="border-radius:4px;padding:2px 6px;font-size:.68rem">required</span><span class="attr-desc">Your API key from Admin → API Keys</span></div>
+    <div class="attr-row"><span class="attr-name">data-title</span><span class="attr-type">string</span><span class="attr-default">"How can we help?"</span><span class="attr-desc">Header title text</span></div>
+    <div class="attr-row"><span class="attr-name">data-subtitle</span><span class="attr-type">string</span><span class="attr-default">"AI-powered support"</span><span class="attr-desc">Header subtitle text</span></div>
+    <div class="attr-row"><span class="attr-name">data-color</span><span class="attr-type">string</span><span class="attr-default">"#00d4aa"</span><span class="attr-desc">Primary accent color (hex)</span></div>
+    <div class="attr-row"><span class="attr-name">data-agent</span><span class="attr-type">string</span><span class="attr-default">"SupportOS AI"</span><span class="attr-desc">Agent display name</span></div>
+    <div class="attr-row"><span class="attr-name">data-position</span><span class="attr-type">string</span><span class="attr-default">"right"</span><span class="attr-desc"><code>right</code> or <code>left</code> — position of the widget button</span></div>
+    <div class="attr-row"><span class="attr-name">data-endpoint</span><span class="attr-type">string</span><span class="attr-default">auto-detected</span><span class="attr-desc">Override API base URL (useful if serving from CDN)</span></div>
+  </div>
+
+  <!-- WEBHOOKS -->
+  <h2 id="webhooks">Webhooks</h2>
+  <p>Configure a webhook URL in <a href="/admin">Admin → Settings</a> to receive real-time POST notifications whenever a lead or audit request is submitted.</p>
+
+  <div class="callout">
+    <p>SupportOS sends a <code>POST</code> request with <code>Content-Type: application/json</code> to your configured URL within milliseconds of each event.</p>
+  </div>
+
+  <h3>Webhook Payload</h3>
+  <pre><code>{
+  <span class="prop">"event"</span>: <span class="str">"audit.created"</span>,
+  <span class="prop">"timestamp"</span>: <span class="str">"2026-05-18T10:30:00.000Z"</span>,
+  <span class="prop">"data"</span>: {
+    <span class="prop">"id"</span>: <span class="str">"uuid"</span>,
+    <span class="prop">"name"</span>: <span class="str">"Jane Smith"</span>,
+    <span class="prop">"email"</span>: <span class="str">"jane@company.com"</span>,
+    <span class="prop">"company"</span>: <span class="str">"Acme Inc."</span>,
+    <span class="prop">"helpdesk"</span>: <span class="str">"Zendesk"</span>,
+    <span class="prop">"weekly_tickets"</span>: <span class="str">"300–700"</span>,
+    <span class="prop">"status"</span>: <span class="str">"pending"</span>,
+    <span class="prop">"created_at"</span>: <span class="str">"2026-05-18T10:30:00.000Z"</span>
+  }
+}</code></pre>
+
+  <div class="webhook-events">
+    <div class="webhook-event"><span class="event-name">audit.created</span><span class="event-desc">A new audit request was submitted via the landing page form</span></div>
+    <div class="webhook-event"><span class="event-name">lead.created</span><span class="event-desc">A new contact/lead was submitted via the contact form</span></div>
+    <div class="webhook-event"><span class="event-name">test.ping</span><span class="event-desc">Test event fired from Admin → Settings → Test Webhook</span></div>
+  </div>
+
+  <h3>Signature Verification</h3>
+  <p>If you set a webhook secret in Admin → Settings, every request includes an <code>X-SupportOS-Signature</code> header with your secret. Verify it to confirm the request came from SupportOS.</p>
+
+  <!-- EXAMPLES -->
+  <h2 id="examples">Code Examples</h2>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('js')">JavaScript</div>
+    <div class="tab" onclick="switchTab('python')">Python</div>
+    <div class="tab" onclick="switchTab('curl')">cURL</div>
+    <div class="tab" onclick="switchTab('php')">PHP</div>
+  </div>
+
+  <div class="tab-content active" id="tab-js">
+<pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code><span class="cmt">// Triage a customer message</span>
+<span class="kw">async function</span> <span class="fn">triageMessage</span>(message) {
+  <span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'http://localhost:3000/api/triage'</span>, {
+    method: <span class="str">'POST'</span>,
+    headers: {
+      <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span>,
+      <span class="str">'X-Api-Key'</span>: <span class="str">'sos_YOUR_API_KEY'</span>
+    },
+    body: <span class="fn">JSON.stringify</span>({ message })
+  });
+  <span class="kw">const</span> { data } = <span class="kw">await</span> res.<span class="fn">json</span>();
+  console.<span class="fn">log</span>(<span class="str">'Category:'</span>, data.triage.category);
+  console.<span class="fn">log</span>(<span class="str">'Route to:'</span>, data.routing.team);
+  console.<span class="fn">log</span>(<span class="str">'Reply:'</span>, data.suggested_reply);
+  <span class="kw">return</span> data;
+}
+
+<span class="fn">triageMessage</span>(<span class="str">'My order hasn\'t arrived after 2 weeks'</span>);</code></pre>
+  </div>
+
+  <div class="tab-content" id="tab-python">
+<pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code><span class="kw">import</span> requests
+
+<span class="kw">def</span> <span class="fn">triage_message</span>(message):
+    response = requests.<span class="fn">post</span>(
+        <span class="str">'http://localhost:3000/api/triage'</span>,
+        headers={
+            <span class="str">'X-Api-Key'</span>: <span class="str">'sos_YOUR_API_KEY'</span>,
+            <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span>
+        },
+        json={<span class="str">'message'</span>: message}
+    )
+    data = response.json()[<span class="str">'data'</span>]
+    <span class="kw">print</span>(<span class="str">f"Category: {data['triage']['category']}"</span>)
+    <span class="kw">print</span>(<span class="str">f"Route to: {data['routing']['team']}"</span>)
+    <span class="kw">print</span>(<span class="str">f"Reply: {data['suggested_reply']}"</span>)
+    <span class="kw">return</span> data
+
+<span class="fn">triage_message</span>(<span class="str">'App keeps crashing on my iPhone'</span>)</code></pre>
+  </div>
+
+  <div class="tab-content" id="tab-curl">
+<pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code><span class="cmt"># Triage a message</span>
+curl -X POST http://localhost:3000/api/triage \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -H <span class="str">"X-Api-Key: sos_YOUR_API_KEY"</span> \
+  -d <span class="str">'{"message": "I need a refund for my last order"}'</span>
+
+<span class="cmt"># Submit an audit request</span>
+curl -X POST http://localhost:3000/api/audit \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d <span class="str">'{"name":"Jane","email":"jane@co.com","helpdesk":"Zendesk","weekly_tickets":"300-700"}'</span></code></pre>
+  </div>
+
+  <div class="tab-content" id="tab-php">
+<pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code><span class="cmt">// PHP — triage a message</span>
+<span class="kw">function</span> <span class="fn">triageMessage</span>(<span class="prop">$message</span>) {
+    <span class="prop">$ch</span> = <span class="fn">curl_init</span>();
+    <span class="fn">curl_setopt_array</span>(<span class="prop">$ch</span>, [
+        CURLOPT_URL => <span class="str">'http://localhost:3000/api/triage'</span>,
+        CURLOPT_POST => <span class="kw">true</span>,
+        CURLOPT_RETURNTRANSFER => <span class="kw">true</span>,
+        CURLOPT_HTTPHEADER => [
+            <span class="str">'Content-Type: application/json'</span>,
+            <span class="str">'X-Api-Key: sos_YOUR_API_KEY'</span>
+        ],
+        CURLOPT_POSTFIELDS => <span class="fn">json_encode</span>([<span class="str">'message'</span> => <span class="prop">$message</span>])
+    ]);
+    <span class="prop">$result</span> = <span class="fn">json_decode</span>(<span class="fn">curl_exec</span>(<span class="prop">$ch</span>), <span class="kw">true</span>);
+    <span class="fn">curl_close</span>(<span class="prop">$ch</span>);
+    <span class="kw">return</span> <span class="prop">$result</span>[<span class="str">'data'</span>];
+}</code></pre>
+  </div>
+
+  <!-- ZENDESK -->
+  <h2 id="zendesk">Zendesk Integration</h2>
+  <p>Use SupportOS triage before or after Zendesk ticket creation to auto-tag, route, and pre-draft responses.</p>
+
+  <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code><span class="cmt">// In your Zendesk webhook or app trigger</span>
+<span class="kw">const</span> triage = <span class="kw">await</span> <span class="fn">triageMessage</span>(ticket.description);
+
+<span class="cmt">// Auto-tag the ticket</span>
+ticket.tags = [triage.triage.category, triage.triage.priority];
+
+<span class="cmt">// Route to correct group</span>
+ticket.group_id = routingMap[triage.routing.team];
+
+<span class="cmt">// Add internal note with CRM note</span>
+ticket.comment = { body: triage.crm_note, public: <span class="kw">false</span> };
+
+<span class="cmt">// Draft a reply for the agent</span>
+ticket.comment = { body: triage.suggested_reply, public: <span class="kw">true</span> };</code></pre>
+
+  <!-- INTERCOM -->
+  <h2 id="intercom">Intercom Integration</h2>
+  <p>Triage incoming Intercom conversations and auto-assign to the right team with a pre-drafted reply.</p>
+
+  <pre><button class="copy-btn" onclick="copyCode(this)">Copy</button><code><span class="cmt">// Intercom webhook handler</span>
+app.<span class="fn">post</span>(<span class="str">'/intercom/webhook'</span>, <span class="kw">async</span> (req, res) => {
+  <span class="kw">const</span> { body } = req.body.data.item;
+  <span class="kw">const</span> triage = <span class="kw">await</span> <span class="fn">triageMessage</span>(body);
+
+  <span class="cmt">// Assign conversation to correct team</span>
+  <span class="kw">await</span> intercom.conversations.<span class="fn">assign</span>({
+    id: conversationId,
+    team_id: teamMap[triage.routing.team]
+  });
+
+  <span class="cmt">// Add private note for agents</span>
+  <span class="kw">await</span> intercom.conversations.<span class="fn">reply</span>({
+    id: conversationId,
+    type: <span class="str">'note'</span>,
+    body: <span class="str">`[SupportOS] ${triage.crm_note}`</span>
+  });
+
+  res.<span class="fn">json</span>({ ok: <span class="kw">true</span> });
+});</code></pre>
+
+  <!-- ZAPIER / MAKE -->
+  <h2 id="zapier">Zapier / Make Integration</h2>
+  <p>Use SupportOS webhooks as triggers in Zapier or Make to push new leads and audit requests into any tool — CRM, Slack, Notion, HubSpot.</p>
+
+  <div class="callout">
+    <p><strong style="color:var(--white)">Step 1:</strong> In Admin → Settings, enter your Zapier webhook URL (from a Zapier "Webhooks by Zapier" trigger) and enable webhooks.</p>
+  </div>
+  <div class="callout">
+    <p><strong style="color:var(--white)">Step 2:</strong> SupportOS will POST <code>audit.created</code> and <code>lead.created</code> events to that URL every time a form is submitted.</p>
+  </div>
+  <div class="callout">
+    <p><strong style="color:var(--white)">Step 3:</strong> In Zapier, map the payload fields (<code>data.email</code>, <code>data.company</code>, etc.) to HubSpot, Slack, Notion, or any other app.</p>
+  </div>
+
+</main>
+
+<script>
+  // Tab switching
+  function switchTab(name) {
+    document.querySelectorAll('.tab').forEach((t,i) => {
+      const names = ['js','python','curl','php'];
+      t.classList.toggle('active', names[i] === name);
+    });
+    document.querySelectorAll('.tab-content').forEach(c => {
+      c.classList.toggle('active', c.id === 'tab-' + name);
+    });
+  }
+
+  // Copy code
+  function copyCode(btn) {
+    const code = btn.nextElementSibling.textContent;
+    navigator.clipboard.writeText(code).then(() => {
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 2000);
+    });
+  }
+
+  // Active nav link on scroll
+  const sections = document.querySelectorAll('h2[id], h3[id]');
+  const navLinks = document.querySelectorAll('.nav-link');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+      }
+    });
+  }, { threshold: 0.6, rootMargin: '-10% 0px -80% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
