@@ -1,3 +1,7 @@
+<p align="center">
+  <img src=".github/banner.svg" width="100%" alt="SupportOS: AI customer-support automation platform. Live demo, dashboard, widget and API.">
+</p>
+
 # SupportOS
 
 AI-powered customer support automation agency platform. Full-stack Node.js app with landing page, live AI demo, admin dashboard, embeddable widget, REST API, and webhooks.
